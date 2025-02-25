@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "love-delhi",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -22,18 +22,65 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
+
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#ffffff",
+          "enableFullScreenImage_legacy": true
+        }
+      ],
+      [
+        "expo-font",
+        {
+          "family": "SFPro",
+          "source": [
+            {
+              "url": "./assets/fonts/SF-Pro-Display-Black.otf",
+              "weight": "900"
+            },
+            {
+              "url": "./assets/fonts/SF-Pro-Display-Heavy.otf",
+              "weight": "800"
+            },
+            {
+              "url": "./assets/fonts/SF-Pro-Display-Bold.otf",
+              "weight": "700"
+            },
+            {
+              "url": "./assets/fonts/SF-Pro-Display-Semibold.otf",
+              "weight": "600"
+            },
+            {
+              "url": "./assets/fonts/SF-Pro-Display-Medium.otf",
+              "weight": "500"
+            },
+            {
+              "url": "./assets/fonts/SF-Pro-Display-Light.otf",
+              "weight": "400"
+            },
+            {
+              "url": "./assets/fonts/SF-Pro-Display-UltraLight.otf",
+              "weight": "300"
+            },
+            {
+              "url": "./assets/fonts/SF-Pro-Display-Thin.otf",
+              "weight": "200"
+            },
+
+            {
+              "url": "./assets/fonts/Impact.ttf",
+              "weight": "100"
+            }
+          ]
         }
       ]
     ],
+
     "experiments": {
       "typedRoutes": true
     }
