@@ -1,21 +1,18 @@
 import BottomContainer from '@/components/bottom-container.component';
 import Button from '@/components/button.component';
-import { useGetEvents } from '@/lib/state/event-queries';
-import { Link } from 'expo-router';
+
 import { useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 import Entypo from '@expo/vector-icons/Entypo';
-import Input from '@/components/input.component';
 import SignInView from '@/views/auth/sign-in.view';
 import Animated, {
   FadeIn,
   FadeInLeft,
-  FadeInRight,
   FadeOut,
   FadeOutLeft,
-  FadeOutRight,
 } from 'react-native-reanimated';
 import SignUpView from '@/views/auth/sign-up.view';
+import { Images } from '@/constants/images';
 
 export default function Index() {
   type View = {
@@ -81,26 +78,33 @@ export default function Index() {
   const words = ['Unite', 'Celebrate', 'Grow'];
   return (
     <BottomContainer
+      className="h-full"
       before={
-        views[currentView].hideTitle && (
+        views[currentView].hideTitle ? (
           <Animated.View
             entering={FadeIn}
             exiting={FadeOut}
-            className="mb-3 ml-4"
+            className="flex flex-col justify-between flex-1 mb-3 ml-4"
           >
-            {words.map((word, index) => (
-              <Text
-                className="mb-2 text-white text-7xl font-sfThin"
-                key={index}
-              >
-                {word}
-              </Text>
-            ))}
+            <Image
+              source={Images.LoveDelhiSmall}
+              className="w-32 h-32 mt-32 ml-5 "
+            />
+            <View>
+              {words.map((word, index) => (
+                <Text
+                  className="mb-2 text-white text-7xl font-sfThin"
+                  key={index}
+                >
+                  {word}
+                </Text>
+              ))}
+            </View>
           </Animated.View>
-        )
+        ) : null
       }
     >
-      {!views[currentView].hideTitle && (
+      {!views[currentView].hideTitle ? (
         <View className="flex flex-row items-center justify-start mb-6">
           <TouchableOpacity onPress={() => setCurrentView(0)}>
             <Entypo name="chevron-left" size={30} color="black" />
@@ -109,7 +113,7 @@ export default function Index() {
             {views[currentView].title}
           </Text>
         </View>
-      )}
+      ) : null}
       {views[currentView].container}
     </BottomContainer>
   );

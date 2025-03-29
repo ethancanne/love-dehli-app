@@ -44,64 +44,58 @@ export const account = new Account(client);
 export const databases = new Databases(client);
 
 //USERS
-export async function login(
-  email: string,
-  password: string,
-  queryClient: QueryClient
-) {
+export async function login(data: { email: string; password: string }) {
   try {
-    const loggedIn = await account.createEmailPasswordSession(email, password);
+    const loggedIn = await account.createEmailPasswordSession(
+      data.email,
+      data.password
+    );
     if (!loggedIn) {
-      return toast('NOPE');
+      return toast(JSON.stringify(loggedIn));
     }
-
-    queryClient.invalidateQueries({ queryKey: ['user'] });
-    queryClient.refetchQueries({ queryKey: ['user'] });
-
     toast('Welcome back. You are logged in');
   } catch (e: any) {
     return toast(e.message);
   }
 }
 
-export async function logout(queryClient: QueryClient) {
+export async function logout() {
   try {
     await account.deleteSession('current');
-    queryClient.invalidateQueries({ queryKey: ['user'] });
-    queryClient.refetchQueries({ queryKey: ['user'] });
+
     toast('Logged out');
   } catch (e: any) {
     return toast(e.message);
   }
 }
 
-export async function registerUser(
-  email: string,
-  password: string,
-  firstName: string,
-  lastName: string,
-  phoneNumber: string,
-  confirmPassword: string,
-  queryClient: QueryClient
-) {
-  if (password !== confirmPassword) {
+export async function registerUser(data: {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  confirmPassword: string;
+}) {
+  if (data.password !== data.confirmPassword) {
     return toast('Passwords do not match');
   }
+  console.log(JSON.stringify(data));
 
   try {
     await account.create(
       ID.unique(),
-      email,
-      password,
-      firstName + ' ' + lastName
+      data.email,
+      data.password,
+      data.firstName + ' ' + data.lastName
     );
-    await account.updatePrefs({
-      phoneNumber: phoneNumber, // Custom field in user preferences
-    });
-    await login(email, password, queryClient);
 
-    queryClient.invalidateQueries({ queryKey: ['user'] });
-    queryClient.refetchQueries({ queryKey: ['user'] });
+    await login({ email: data.email, password: data.password });
+
+    await account.updatePhone(data.phoneNumber, data.password);
+    await account.updatePrefs({
+      role: 'user',
+    });
     toast('Account created');
   } catch (e: any) {
     return toast(e.message);
@@ -119,7 +113,6 @@ export async function getCurrentUser() {
     }
     return null;
   } catch (error: any) {
-    console.log('OMG, this is the error: ', error.message);
     return null;
   }
 }
@@ -137,18 +130,53 @@ export async function updateUser(data: User) {
   } catch (error: any) {
     if (error.message === 'A target with the same ID already exists.') {
       //Don't understand this error!
-      console.log('YEah I got this error: ', error.message);
       toast('User updated');
 
       return true;
     }
     toast(`Error updating user: ${error.message}`);
-    console.log('OMG, this is the error: ', error.message);
     throw error;
   }
 }
 
 //EVENTS
+
+export async function createEvent(data: Event) {
+  try {
+    const response = await databases.createDocument(
+      config.databaseID!,
+      config.eventsCollectionID!,
+      ID.unique(),
+      data
+    );
+    return response as Event;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export async function updateEvent(data: Event) {
+  try {
+    const response = await databases.updateDocument(
+      config.databaseID!,
+      config.eventsCollectionID!,
+      useUIStore.getState().editViewOptions.editDataId!,
+      {
+        title: data.title,
+        theme: data.theme,
+        description: data.description,
+        startDateTime: data.startDateTime,
+        image: data.image,
+        location: data.location,
+      }
+    );
+    return response as Event;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
 
 export async function getEvents() {
   try {
@@ -164,6 +192,28 @@ export async function getEvents() {
   }
 }
 
+export async function getRegisteredEvents() {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return [];
+    }
+
+    let scheduledEvents: Event[] = (
+      await databases.listDocuments(
+        config.databaseID!,
+        config.eventsCollectionID!,
+        [Query.contains('registrations', user.$id)]
+      )
+    ).documents as Event[];
+
+    return scheduledEvents;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
 export async function getEvent(id: string) {
   try {
     const response = await databases.getDocument(
@@ -171,6 +221,26 @@ export async function getEvent(id: string) {
       config.eventsCollectionID!,
       id
     );
+    return response as Event;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export async function registerForEvent(eventId: string) {
+  try {
+    console.log("DOIN' my best");
+
+    const response = await databases.updateDocument(
+      config.databaseID!,
+      config.eventsCollectionID!,
+      eventId,
+      {
+        registrations: [(await account.get()).$id],
+      }
+    );
+
     console.log(response);
 
     return response as Event;
@@ -179,6 +249,8 @@ export async function getEvent(id: string) {
     return null;
   }
 }
+
+// ------ APPLICATIONS
 
 export async function applyAsPerformer(data: {
   eventId: string;
@@ -194,11 +266,12 @@ export async function applyAsPerformer(data: {
         Query.equal('performerProfile', data.performerProfileId),
       ]
     );
+
     if (existingResponse.total > 0) {
       //change status to accepted
       await changeApplicationStatus({
         applicationId: existingResponse.documents[0].$id,
-        newStatus: 'Submitted',
+        newStatus: 'Pending',
       });
       return existingResponse.documents[0] as Application;
     }
@@ -220,34 +293,47 @@ export async function applyAsPerformer(data: {
   }
 }
 
-export async function getApplicationForEvent(eventId: string) {
+export async function getApplicationForEvent(
+  eventId: string,
+  performerProfileId: string
+) {
   try {
     const response = await databases.listDocuments(
       config.databaseID!,
       config.applicationCollectionID!,
-      [Query.equal('event', eventId)]
+      [
+        Query.equal('event', eventId),
+        Query.equal('performerProfile', performerProfileId),
+      ]
     );
+
+    if (response.total === 0) {
+      return {} as Application;
+    }
+
     return response.documents[0] as Application;
   } catch (error) {
     console.error(error);
-    return;
+    throw error;
   }
 }
 
 export async function changeApplicationStatus(data: {
   applicationId: string;
   newStatus: ApplicationStatus;
+  message?: string;
 }) {
   try {
     const response = await databases.updateDocument(
       config.databaseID!,
       config.applicationCollectionID!,
-      data.applicationId,
+      data.applicationId || useUIStore.getState().editViewOptions.editDataId!,
       {
         status: data.newStatus,
+        message: data.message,
       }
     );
-    console.log(response);
+    return response;
   } catch (error) {
     console.error(error);
     throw error;
@@ -267,7 +353,6 @@ export async function createPerformerProfile(data: PerformerProfile) {
         associatedUsers: [(await account.get()).$id],
       }
     );
-    console.log(response);
 
     return response as PerformerProfile;
   } catch (error) {
@@ -278,25 +363,24 @@ export async function createPerformerProfile(data: PerformerProfile) {
 
 export async function editPerformerProfile(data: PerformerProfile) {
   try {
-    console.log('WHY IS THIS', useUIStore.getState().editDataId!);
-
     const response = await databases.updateDocument(
       config.databaseID!,
       config.performerProfileCollectionID!,
-      useUIStore.getState().editDataId!,
+      useUIStore.getState().editViewOptions.editDataId!,
       {
         stageName: data.stageName,
         bio: data.bio,
       }
     );
-    console.log(response);
+
+    return response as PerformerProfile;
   } catch (error) {
     console.error(error);
     throw error;
   }
 }
 
-export async function getPerformerProfile() {
+export async function getCurrentPerformerProfile() {
   try {
     const response = await databases.listDocuments(
       config.databaseID!,
@@ -308,6 +392,47 @@ export async function getPerformerProfile() {
     } else return response.documents[0] as PerformerProfile;
   } catch (error) {
     console.error(error);
-    return null;
+    throw error;
+  }
+}
+
+export async function getAllPerformerProfiles(search?: string) {
+  try {
+    const response = await databases.listDocuments(
+      config.databaseID!,
+      config.performerProfileCollectionID!,
+      search
+        ? [
+            Query.or([
+              Query.search('stageName', search),
+              Query.search('bio', search),
+            ]),
+          ]
+        : undefined
+    );
+
+    if (response.total === 0) {
+      return null;
+    } else return response.documents as PerformerProfile[];
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function getPerformerProfile(id: string) {
+  try {
+    const response = await databases.getDocument(
+      config.databaseID!,
+      config.performerProfileCollectionID!,
+      id
+    );
+
+    if (response.total === 0) {
+      return null;
+    } else return response as PerformerProfile;
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }

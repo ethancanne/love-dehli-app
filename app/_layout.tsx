@@ -6,6 +6,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DevToolsBubble } from 'react-native-react-query-devtools';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
+import { useUIStore } from '@/lib/state/ui-state';
+import EditContainer from '@/components/edit-container.component';
+
+export const queryClientContext = new QueryClient();
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -29,12 +33,11 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  const queryClient = new QueryClient();
   if (!loaded) {
     return null;
   }
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClientContext}>
       <StatusBar style="light" />
       <LinearGradient
         colors={['rgba(123,0,0,1)', 'rgba(0,0,0,1)']}
@@ -46,11 +49,13 @@ export default function RootLayout() {
         <Stack
           screenOptions={{
             headerShown: false,
+            statusBarBackgroundColor: 'white',
             animation: 'none',
             contentStyle: { backgroundColor: 'transparent' },
           }}
         />{' '}
       </LinearGradient>
+
       <DevToolsBubble />
     </QueryClientProvider>
   );

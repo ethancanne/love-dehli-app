@@ -1,21 +1,16 @@
-import { View, Text, TextInput } from 'react-native';
-import React, { useState } from 'react';
-import { Control, Controller, RegisterOptions } from 'react-hook-form';
-import Animated, {
-  useAnimatedKeyboard,
-  useAnimatedStyle,
-  useSharedValue,
-} from 'react-native-reanimated';
+import { View, Text, TextInput, TextInputProps } from 'react-native';
+import React from 'react';
+import { Controller } from 'react-hook-form';
 
-type Props = {
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { EditData } from '@/types';
+import { Picker } from '@react-native-picker/picker';
+import PhoneInput from 'react-phone-number-input/react-native-input';
+
+interface Props extends EditData {
   control: any;
-  placeholder: string;
-  name: string;
-  title: string;
-  rules?: RegisterOptions;
-  error?: string;
-  focused?: boolean;
-};
+  textProps?: TextInputProps;
+}
 
 const Input = (props: Props) => {
   return (
@@ -26,22 +21,79 @@ const Input = (props: Props) => {
       <Controller
         control={props.control}
         rules={props.rules}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            className={`p-4 bg-gray-100 border-none rounded-md focus:border-b-primary-200 focus:border-2 ${
-              props.error && 'bg-red-200'
-            }`}
-            placeholder={props.placeholder}
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-          />
-        )}
+        render={({ field: { onChange, onBlur, value } }) => {
+          if (props.inputType === 'datetime') {
+            return (
+              <DateTimePicker
+                value={value || new Date()}
+                mode="datetime"
+                display="default"
+                className="text-black"
+                accentColor="#D91111"
+                textColor="#000000"
+                onChange={(event, selectedDate) => {
+                  onChange(selectedDate);
+                }}
+              />
+            );
+          }
+
+          if (props.inputType === 'select') {
+            return (
+              <Picker
+                selectedValue={value}
+                onValueChange={onChange}
+                onBlur={onBlur}
+              >
+                {props.options?.map((option) => (
+                  <Picker.Item
+                    color="#000000"
+                    key={option.value}
+                    label={option.label}
+                    value={option.value}
+                  />
+                ))}
+              </Picker>
+            );
+          }
+
+          if (props.inputType === 'phone') {
+            return (
+              <View
+                className={`p-4 bg-gray-100 border-none rounded-md focus:border-b-primary-200 focus:border-2 ${
+                  props.error && 'bg-red-200'
+                }`}
+              >
+                <PhoneInput
+                  onBlur={onBlur}
+                  defaultCountry="IN"
+                  onChange={onChange}
+                  value={value}
+                  placeholder={props.placeholder}
+                />
+              </View>
+            );
+          }
+
+          return (
+            <TextInput
+              className={`p-4 bg-gray-100 border-none rounded-md focus:border-b-primary-200 focus:border-2   ${
+                props.error && 'bg-red-200'
+              }`}
+              {...props.textProps}
+              placeholder={props.placeholder}
+              onBlur={onBlur}
+              multiline={props.inputType === 'textarea'}
+              onChangeText={onChange}
+              value={value}
+            />
+          );
+        }}
         name={props.name}
       />
-      {props.error && (
+      {props.error ? (
         <Text className="w-full mt-2 text-sm text-red-500">{props.error}</Text>
-      )}
+      ) : null}
     </View>
   );
 };

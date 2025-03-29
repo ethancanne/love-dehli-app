@@ -8,8 +8,7 @@ import { Text } from 'react-native';
 
 const RootLayout = () => {
   const { data: user, isLoading } = useCurrentUser();
-
-  const { editViewIsOpen } = useUIStore((s) => s);
+  const { editViewOptions } = useUIStore((s) => s);
 
   if (isLoading) {
     return <Text>Loading</Text>;
@@ -31,10 +30,20 @@ const RootLayout = () => {
         <Stack.Screen name="(main)" options={{ headerShown: false }} />
         <Stack.Screen
           name="event"
-          options={{ headerShown: false, presentation: 'modal' }}
+          options={{
+            headerShown: false,
+            presentation: 'containedModal',
+          }}
+        />
+        <Stack.Screen
+          name="performer-profile"
+          options={{
+            headerShown: false,
+            presentation: 'containedModal',
+          }}
         />
       </Stack>
-      {editViewIsOpen && <EditContainer />}
+      {editViewOptions.editViewIsOpen ? <EditContainer /> : null}
     </>
   );
 };

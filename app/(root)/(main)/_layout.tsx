@@ -1,12 +1,10 @@
-import { View, Text, SafeAreaView } from 'react-native';
-import { Image } from 'expo-image';
+import { View, Text, SafeAreaView, Image } from 'react-native';
 import React from 'react';
 import { Tabs, usePathname } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import Octicons from '@expo/vector-icons/Octicons';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import Feather from '@expo/vector-icons/Feather';
-import images from '@/constants/images';
+import { Images } from '@/constants/images';
+import { useCurrentUser } from '@/lib/state/user-queries';
+import { checkUserRole } from '@/lib/helper';
 
 const TabIcon = ({
   focused,
@@ -30,6 +28,7 @@ const TabIcon = ({
 const Layout = () => {
   const pathname = usePathname();
 
+  const { data: user, isLoading: userIsLoading } = useCurrentUser();
   // Map route names to titles
   const getPageTitle = () => {
     switch (pathname.split('/').pop()) {
@@ -37,8 +36,8 @@ const Layout = () => {
         return 'Upcoming Events';
       case 'schedule':
         return 'Schedule';
-      case 'users':
-        return 'Users';
+      case 'performers':
+        return 'Performers';
       case 'account':
         return 'Account';
       default:
@@ -51,15 +50,16 @@ const Layout = () => {
       <SafeAreaView className="">
         <View className="flex items-start justify-end p-4 h-36">
           <Image
-            source={images.LoveDelhiLong}
-            contentFit="contain"
-            className="w-full h-40"
+            source={Images.LoveDelhiLong}
+            resizeMode="contain"
+            className="w-48 h-14"
           />
           <Text className="w-full text-3xl text-white uppercase font-impact">
             {getPageTitle()}
           </Text>
         </View>
       </SafeAreaView>
+
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -95,7 +95,9 @@ const Layout = () => {
           }}
         />
         <Tabs.Screen name="schedule" />
-        <Tabs.Screen name="users" />
+
+        <Tabs.Screen name="performers" />
+
         <Tabs.Screen name="account" />
       </Tabs>
     </>

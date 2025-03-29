@@ -1,7 +1,9 @@
-import LoveDelhiLong from '@/assets/images/love-delhi-long.svg';
-import LoveDelhiSmall from '@/assets/images/love-delhi-small.svg';
+// @ts-ignore
+import LoveDelhiLong from '@/assets/images/love-delhi-long.png';
+// @ts-ignore
+import LoveDelhiSmall from '@/assets/images/love-delhi-small.png';
 
-export default {
+export const Images = {
   LoveDelhiLong,
   LoveDelhiSmall,
 };

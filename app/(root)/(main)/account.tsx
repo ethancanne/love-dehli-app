@@ -1,32 +1,34 @@
 import { View, Text, ScrollView } from 'react-native';
 import React from 'react';
 import Button from '@/components/button.component';
-import { logout } from '@/lib/appwrite';
 import { useQueryClient } from '@tanstack/react-query';
 import InfoList from '@/components/info-list.component';
-import { useCurrentUser, useUpdateCurrentUser } from '@/lib/state/user-queries';
+import {
+  useCurrentUser,
+  useLogout,
+  useUpdateCurrentUser,
+} from '@/lib/state/user-queries';
 import { FontAwesome } from '@expo/vector-icons';
 import { useUIStore } from '@/lib/state/ui-state';
-import Loading from '@/components/loading.component';
 import { InformationList } from '@/types';
 import {
   useCreatePerformerProfile,
   useEditPerformerProfile,
-  usePerformerProfile,
+  useCurrentPerformerProfile,
 } from '@/lib/state/performer-profile-queries';
+import {
+  formatPhoneNumber,
+  formatPhoneNumberIntl,
+} from 'react-phone-number-input';
 
 const Account = () => {
   const queryClient = useQueryClient();
   const { data: user, isLoading: userIsLoading } = useCurrentUser();
   const { data: performerProfileData, isLoading: performerProfileIsLoading } =
-    usePerformerProfile();
-  const {
-    openEditView,
-    setEditData,
-    setEditTitle,
-    setEditMutateFn,
-    setEditDataId,
-  } = useUIStore((s) => s);
+    useCurrentPerformerProfile();
+  const { setEditViewOptions } = useUIStore((s) => s);
+
+  const { mutate: logout, isPending: logoutIsPending } = useLogout();
 
   const performerProfile = [
     {
@@ -79,10 +81,11 @@ const Account = () => {
     },
     {
       label: 'Phone Number',
-      value: user?.phone,
+      value: formatPhoneNumberIntl(user?.phone ?? ''),
       formInput: {
         name: 'phone',
         title: 'Phone Number',
+        inputType: 'phone',
         placeholder: 'Enter your phone number',
         // rules: { required: 'Phone number is required' },
         defaultValue: user?.phone,
@@ -93,7 +96,7 @@ const Account = () => {
 
   return (
     <ScrollView
-      className="p-4"
+      className="p-4 bg-white"
       contentContainerStyle={{ paddingBottom: 100, paddingTop: 20 }}
     >
       <View className="flex flex-col h-full gap-10">
@@ -103,10 +106,14 @@ const Account = () => {
           isLoading={userIsLoading}
           shouldShowEditButton={!!userInformation}
           onClickEdit={() => {
-            setEditData(userInformation.map((item) => item.formInput));
-            setEditTitle('Edit Your Personal Information');
-            setEditMutateFn(useUpdateCurrentUser as any);
-            openEditView();
+            setEditViewOptions({
+              editViewIsOpen: true,
+              editTitle: 'Edit Your Personal Information',
+              editData: userInformation
+                .map((item) => item.formInput)
+                .filter((item) => item !== undefined),
+              editMutateFn: useUpdateCurrentUser as any,
+            });
           }}
         />
 
@@ -130,28 +137,36 @@ const Account = () => {
                 text="Create"
                 color="black"
                 onPress={() => {
-                  setEditData(performerProfile.map((item) => item.formInput));
-                  setEditTitle('Setup Your Performer Profile');
-                  setEditMutateFn(useCreatePerformerProfile as any);
-                  openEditView();
+                  setEditViewOptions({
+                    editViewIsOpen: true,
+                    editTitle: 'Setup Your Performer Profile',
+                    editData: performerProfile
+                      .map((item) => item.formInput)
+                      .filter((item) => item !== undefined),
+                    editMutateFn: useCreatePerformerProfile as any,
+                  });
                 }}
                 small
               />
             </View>
           }
           onClickEdit={() => {
-            setEditData(performerProfile.map((item) => item.formInput));
-            setEditDataId(performerProfileData?.$id!);
-            setEditTitle('Edit Your Performer Profile');
-            setEditMutateFn(useEditPerformerProfile as any);
-            openEditView();
+            setEditViewOptions({
+              editViewIsOpen: true,
+              editTitle: 'Edit Your Performer Profile',
+              editDataId: performerProfileData?.$id,
+              editData: performerProfile
+                .map((item) => item.formInput)
+                .filter((item) => item !== undefined),
+              editMutateFn: useEditPerformerProfile as any,
+            });
           }}
         />
 
         <Button
           text="Sign Out"
           onPress={() => {
-            logout(queryClient);
+            logout();
           }}
           color="red"
           small

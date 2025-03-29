@@ -1,11 +1,11 @@
-import { Text, TextInput, View } from 'react-native';
-import { useForm, SubmitHandler, Controller, useWatch } from 'react-hook-form';
-import { login, registerUser } from '@/lib/appwrite';
+import { useForm, useWatch } from 'react-hook-form';
 import { useQueryClient } from '@tanstack/react-query';
-import BottomContainer from '@/components/bottom-container.component';
 import Input from '@/components/input.component';
 import Button from '@/components/button.component';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
+import { useRegisterUser } from '@/lib/state/user-queries';
+import Loading from '@/components/loading.component';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 type Inputs = {
   email: string;
@@ -17,32 +17,45 @@ type Inputs = {
 };
 
 const SignUpView = () => {
-  const queryClient = useQueryClient();
   const {
     control,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm({
     defaultValues: {
       email: '',
       password: '',
     } as Inputs,
   });
+
+  const { mutate: registerUser, isPending } = useRegisterUser();
   const onSubmit = async (data: any) => {
-    await registerUser(
-      data.email,
-      data.password,
-      data.firstName,
-      data.lastName,
-      data.phoneNumber,
-      data.confirmPassword,
-      queryClient
-    );
+    registerUser({
+      email: data.email,
+      password: data.password,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      phoneNumber: data.phoneNumber,
+      confirmPassword: data.confirmPassword,
+    });
   };
 
   const watch = useWatch({
     control,
   });
+
+  if (isPending) {
+    return (
+      <Animated.View
+        className="flex items-center justify-center w-full max-h-full"
+        entering={FadeInRight.delay(100)}
+        exiting={FadeOutLeft}
+      >
+        <Loading text="Signing in..." />
+      </Animated.View>
+    );
+  }
 
   return (
     <Animated.View
@@ -62,13 +75,27 @@ const SignUpView = () => {
         name="email"
         title="Email"
         error={errors.email?.message}
+        textProps={{
+          autoCapitalize: 'none',
+          keyboardType: 'email-address',
+          autoCorrect: false,
+        }}
       />
       <Input
         control={control}
         placeholder="Phone Number"
         name="phoneNumber"
+        inputType="phone"
+        textProps={{
+          keyboardType: 'phone-pad',
+          autoCorrect: false,
+        }}
         rules={{
-          pattern: { value: /^\S+$/i, message: 'Invalid phone number' },
+          pattern: {
+            value:
+              /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/,
+            message: 'Invalid phone number',
+          },
         }}
         title="Phone Number"
         error={errors.phoneNumber?.message}
@@ -95,6 +122,7 @@ const SignUpView = () => {
         rules={{ required: 'Password is required', minLength: 6 }}
         name="password"
         title="Password"
+        textProps={{ secureTextEntry: true, autoCorrect: false }}
         error={errors.password?.message}
       />
       <Input
@@ -108,6 +136,7 @@ const SignUpView = () => {
         }}
         name="confirmPassword"
         title="Confirm Password"
+        textProps={{ secureTextEntry: true, autoCorrect: false }}
         error={errors.confirmPassword?.message}
       />
       <Button text="Submit" onPress={handleSubmit(onSubmit)} color="red" />

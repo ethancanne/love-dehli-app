@@ -1,3 +1,4 @@
+import { Application, EditData } from '@/types';
 
 export const userInformation = [
   {
@@ -19,3 +20,28 @@ export const userInformation = [
     rules: { required: 'Email is required' },
   },
 ];
+
+export const applicationEditData = (application: Application) =>
+  [
+    {
+      name: 'newStatus',
+      title: 'Status',
+      placeholder: 'Enter event status',
+      rules: { required: 'Event status is required' },
+      inputType: 'select',
+      defaultValue: application.status,
+      options: [
+        { label: 'Accepted', value: 'Accepted' },
+        { label: 'Declined', value: 'Declined' },
+        { label: 'Pending', value: 'Pending' },
+        { label: 'Cancelled', value: 'Cancelled' },
+      ],
+    },
+    {
+      name: 'message',
+      title: 'Message',
+      defaultValue: application.message,
+      placeholder: 'Enter event message',
+      rules: { required: 'Application message is required' },
+    },
+  ] as EditData[];

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
+  Dimensions,
   Keyboard,
   ScrollView,
   TextInput,
@@ -20,6 +21,7 @@ type Props = {
   before?: React.ReactNode;
   loading?: boolean;
   subtle?: boolean;
+  className?: string;
 };
 
 const BottomContainer = (props: Props) => {
@@ -90,13 +92,15 @@ const BottomContainer = (props: Props) => {
   };
 
   return (
-    <View className="absolute bottom-0 w-full">
-      <View className="min-h-fit">
+    <View
+      className={`absolute bottom-0 w-full flex justify-end items-end ${props.className}`}
+    >
+      <View className={`min-h-fit min-w-full`}>
         {props.before}
 
         <Animated.View
           style={[animatedContainerStyle]}
-          className={'overflow-hidden'}
+          className={`overflow-scroll max-h-[${deviceHeight - 44}px]`}
         >
           <ScrollView
             onContentSizeChange={handleContentSizeChange}

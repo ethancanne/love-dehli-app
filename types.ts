@@ -10,13 +10,14 @@ export interface Event extends Models.Document {
   image: string;
   location: string;
   applications: Application[];
+  registrations: string[];
+  status?: string;
 }
 
 export interface User extends Models.User<Models.Preferences> {
   name: string;
   avatar: string;
   email: string;
-  phoneNumber: string;
 }
 
 export interface PerformerProfile extends Models.Document {
@@ -27,15 +28,16 @@ export interface PerformerProfile extends Models.Document {
 }
 
 export type ApplicationStatus =
-  | 'Submitted'
+  | 'Pending'
   | 'Accepted'
-  | 'Not Selected'
+  | 'Declined'
   | 'Cancelled';
 
 export interface Application extends Models.Document {
   event: Event;
   performerProfile: PerformerProfile;
   status: ApplicationStatus;
+  message: string;
 }
 
 export type EditData = {
@@ -47,11 +49,17 @@ export type EditData = {
   focused?: boolean;
   defaultValue?: string;
   passwordRequired?: boolean;
+  hidden?: boolean;
+  inputType?: 'text' | 'datetime' | 'textarea' | 'select' | 'phone';
+  options?: { label: string; value: string }[];
 };
 
 export type InformationList = {
-  label: string;
+  label?: string;
   value?: string;
   newLine?: boolean;
   formInput?: EditData;
+  component?: React.ReactNode;
+  hidden?: boolean;
+  onPress?: () => void;
 };
