@@ -93,9 +93,11 @@ const BottomContainer = (props: Props) => {
 
   return (
     <View
-      className={`absolute bottom-0 w-full flex justify-end items-end ${props.className}`}
+      className={`absolute bottom-0 w-full flex justify-end items-end ${
+        props.className
+      } max-h-[${deviceHeight - 44}px]`}
     >
-      <View className={`min-h-fit min-w-full`}>
+      <View className={`min-h-fit min-w-full `}>
         {props.before}
 
         <Animated.View

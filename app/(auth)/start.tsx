@@ -88,7 +88,7 @@ export default function Index() {
           >
             <Image
               source={Images.LoveDelhiSmall}
-              className="w-32 h-32 mt-32 ml-5 "
+              className="w-32 h-32 mt-32 ml-2 "
             />
             <View>
               {words.map((word, index) => (

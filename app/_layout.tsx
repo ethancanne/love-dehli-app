@@ -42,8 +42,8 @@ export default function RootLayout() {
       <LinearGradient
         colors={['rgba(123,0,0,1)', 'rgba(0,0,0,1)']}
         locations={[0, 0.1]} // Sharp transition at 7%
-        start={{ x: 1.2, y: 0.04 }} // Approximation for 219deg
-        end={{ x: 0.25, y: 1.15 }} // Approximation for 219deg
+        start={{ x: 1.2, y: 0.09 }} // Approximation for 219deg
+        end={{ x: 0.25, y: 1.2 }} // Approximation for 219deg
         style={{ flex: 1 }}
       >
         <Stack
@@ -53,9 +53,8 @@ export default function RootLayout() {
             animation: 'none',
             contentStyle: { backgroundColor: 'transparent' },
           }}
-        />{' '}
-      </LinearGradient>
-
+        />
+      </LinearGradient>{' '}
       <DevToolsBubble />
     </QueryClientProvider>
   );
