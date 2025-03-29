@@ -93,7 +93,7 @@ export default function Index() {
             <View>
               {words.map((word, index) => (
                 <Text
-                  className="mb-2 text-white text-7xl font-sfThin"
+                  className="mb-2 text-6xl text-white font-sfThin"
                   key={index}
                 >
                   {word}

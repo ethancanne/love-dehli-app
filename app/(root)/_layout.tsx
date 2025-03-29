@@ -4,7 +4,7 @@ import { useUIStore } from '@/lib/state/ui-state';
 import { useCurrentUser } from '@/lib/state/user-queries';
 import { Redirect, Slot, Stack, useRouter } from 'expo-router';
 import { useEffect } from 'react';
-import { Text } from 'react-native';
+import { Platform, Text } from 'react-native';
 
 const RootLayout = () => {
   const { data: user, isLoading } = useCurrentUser();
@@ -24,7 +24,9 @@ const RootLayout = () => {
         screenOptions={{
           headerShown: false,
           animation: 'ios_from_right',
-          contentStyle: { backgroundColor: 'transparent' },
+          contentStyle: {
+            backgroundColor: Platform.OS === 'web' ? '#000' : 'transparent',
+          },
         }}
       >
         <Stack.Screen name="(main)" options={{ headerShown: false }} />

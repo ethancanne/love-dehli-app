@@ -90,19 +90,19 @@ const BottomContainer = (props: Props) => {
       easing: Easing.bezier(0.25, 0.1, 0.25, 1),
     });
   };
+  console.log(deviceHeight);
 
   return (
     <View
-      className={`absolute bottom-0 w-full flex justify-end items-end ${
-        props.className
-      } max-h-[${deviceHeight - 44}px]`}
+      className={`absolute bottom-0 w-full flex justify-end items-end ${props.className}`}
+      style={{ maxHeight: deviceHeight - 44 }}
     >
       <View className={`min-h-fit min-w-full `}>
         {props.before}
 
         <Animated.View
-          style={[animatedContainerStyle]}
-          className={`overflow-scroll max-h-[${deviceHeight - 44}px]`}
+          style={[{ maxHeight: deviceHeight - 44 }, animatedContainerStyle]}
+          className={`overflow-scroll`}
         >
           <ScrollView
             onContentSizeChange={handleContentSizeChange}

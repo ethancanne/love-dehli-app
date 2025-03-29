@@ -1,4 +1,4 @@
-import { Redirect, SplashScreen, Stack } from 'expo-router';
+import { SplashScreen, Stack } from 'expo-router';
 import './global.css';
 import { useFonts } from 'expo-font';
 import { useEffect } from 'react';
@@ -6,8 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DevToolsBubble } from 'react-native-react-query-devtools';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
-import { useUIStore } from '@/lib/state/ui-state';
-import EditContainer from '@/components/edit-container.component';
+import { Platform } from 'react-native';
 
 export const queryClientContext = new QueryClient();
 
@@ -44,14 +43,16 @@ export default function RootLayout() {
         locations={[0, 0.1]} // Sharp transition at 7%
         start={{ x: 1.2, y: 0.09 }} // Approximation for 219deg
         end={{ x: 0.25, y: 1.2 }} // Approximation for 219deg
-        style={{ flex: 1 }}
+        style={{ flex: 1, overflow: 'hidden' }}
       >
         <Stack
           screenOptions={{
             headerShown: false,
             statusBarBackgroundColor: 'white',
             animation: 'none',
-            contentStyle: { backgroundColor: 'transparent' },
+            contentStyle: {
+              backgroundColor: Platform.OS === 'web' ? '#000' : 'transparent',
+            },
           }}
         />
       </LinearGradient>{' '}
