@@ -16,12 +16,9 @@ import { Application, EditData } from '@/types';
 import { useUIStore } from '@/lib/state/ui-state';
 import { FontAwesome } from '@expo/vector-icons';
 import EventListing from '@/components/event-listing.component';
-import {
-  applicationColor,
-  ApplicationSection,
-} from '@/components/application-card.component';
+import { ApplicationSection } from '@/components/application-card.component';
 import { applicationEditData } from '@/lib/forms';
-import { checkUserRole } from '@/lib/helper';
+import { checkUserRole, groupApplicationsByStatus } from '@/lib/helper';
 import { useCurrentUser } from '@/lib/state/user-queries';
 import StickyHeader from '@/components/sticky-header.component';
 
@@ -36,20 +33,9 @@ const PerformerProfile = () => {
     isFetching,
   } = usePerformerProfile(id as string);
 
-  const submittedApplications = {
-    accepted: performerProfile?.applications.filter(
-      (a) => a.status === 'Accepted'
-    ),
-    declined: performerProfile?.applications.filter(
-      (a) => a.status === 'Declined'
-    ),
-    pending: performerProfile?.applications.filter(
-      (a) => a.status === 'Pending'
-    ),
-    cancelled: performerProfile?.applications.filter(
-      (a) => a.status === 'Cancelled'
-    ),
-  };
+  const submittedApplications = groupApplicationsByStatus(
+    performerProfile?.applications
+  );
 
   return (
     <StickyHeader

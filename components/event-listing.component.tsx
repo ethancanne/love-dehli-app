@@ -3,7 +3,7 @@ import React from 'react';
 import { Event } from '@/types';
 import { router } from 'expo-router';
 import { Entypo } from '@expo/vector-icons';
-import { applicationColor } from './application-card.component';
+import { getApplicationStyle } from '@/lib/helper';
 
 type Props = {
   event: Event;
@@ -17,7 +17,7 @@ const EventListing = (props: Props) => {
     <TouchableOpacity
       activeOpacity={props.touchable ? 0.5 : props.onPress ? 0.5 : 1}
       className={`${
-        props.touchable ? 'border-b-hairline border-gray-300 bg-white' : ''
+        props.touchable ? 'border-b-hairline border-gray-300 bg-white py-2' : ''
       }`}
       onPress={
         props.touchable
@@ -61,10 +61,10 @@ const EventListing = (props: Props) => {
         <View className={`flex flex-row items-end justify-end mb-5 mx-5`}>
           <View
             className={`rounded-full px-5 py-1 flex gap-2 flex-row w-fit overflow-hidden flex-1 justify-start items-center ${
-              applicationColor(props.event.status).style
+              getApplicationStyle(props.event.status).style
             }`}
           >
-            {applicationColor(props.event.status).icon}
+            {getApplicationStyle(props.event.status).icon}
             <Text className="text-lg ont-sfHeavy">{props.event.status}</Text>
           </View>
         </View>

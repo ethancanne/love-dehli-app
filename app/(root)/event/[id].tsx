@@ -55,7 +55,7 @@ import {
   ImageHeaderScrollView,
   TriggeringView,
 } from 'react-native-image-header-scroll-view';
-import { checkUserRole } from '@/lib/helper';
+import { checkUserRole, groupApplicationsByStatus } from '@/lib/helper';
 import StickyHeader from '@/components/sticky-header.component';
 
 const Event = () => {
@@ -548,12 +548,10 @@ const Event = () => {
     );
   };
 
-  const submittedApplications = {
-    accepted: event?.applications.filter((a) => a.status === 'Accepted'),
-    declined: event?.applications.filter((a) => a.status === 'Declined'),
-    pending: event?.applications.filter((a) => a.status === 'Pending'),
-    cancelled: event?.applications.filter((a) => a.status === 'Cancelled'),
-  };
+  const submittedApplications = groupApplicationsByStatus(
+    event?.applications,
+    true
+  );
 
   const HEADER_HEIGHT = 300;
 

@@ -3,49 +3,12 @@ import React from 'react';
 import { Application } from '@/types';
 import { FontAwesome } from '@expo/vector-icons';
 import { useUIStore } from '@/lib/state/ui-state';
-import { checkUserRole } from '@/lib/helper';
+import { checkUserRole, getApplicationStyle } from '@/lib/helper';
 import { useCurrentUser } from '@/lib/state/user-queries';
 import { router } from 'expo-router';
 import EventListing from './event-listing.component';
 import { useChangeApplicationStatus } from '@/lib/state/application-queries';
 import { applicationEditData } from '@/lib/forms';
-
-export const applicationColor = (status: string) => {
-  switch (status) {
-    case 'Accepted':
-      return {
-        style: 'bg-green-100',
-        secondStyle: 'bg-green-600',
-        textColor: 'text-green-400',
-        icon: <FontAwesome name="check-circle" size={20} color="green" />,
-      };
-    case 'Declined':
-      return {
-        style: 'bg-red-50',
-        secondStyle: 'bg-red-200',
-        textColor: 'text-red-300',
-        icon: <FontAwesome name="close" size={20} color="red" />,
-      };
-    case 'Pending':
-      return {
-        style: 'bg-yellow-100',
-        secondStyle: 'bg-yellow',
-        textColor: 'text-yellow-200',
-        icon: <FontAwesome name="clock-o" size={20} color="#D5B345" />,
-      };
-    case 'Cancelled':
-      return {
-        style: 'bg-slate-100 opacity-50',
-        secondStyle: 'bg-black',
-        textColor: 'text-gray-700 ',
-        icon: <FontAwesome name="ban" size={20} color="black" />,
-      };
-    default:
-      return {
-        icon: <FontAwesome name="ban" size={20} color="gray" />,
-      };
-  }
-};
 
 type Props = {
   application: Application;
@@ -66,10 +29,10 @@ export const ApplicationSection = (props: SectionProps) => {
   return (
     <View className="mb-4">
       <View className="flex flex-row items-center justify-start gap-2 mb-2 w-fit">
-        {applicationColor(props.status).icon}
+        {getApplicationStyle(props.status).icon}
         <Text
           className={`text-lg text-left ${
-            applicationColor(props.status).textColor
+            getApplicationStyle(props.status).textColor
           } uppercase font-sfBold`}
         >
           {props.status}
@@ -148,14 +111,14 @@ export const ApplicationCard = (props: Props) => {
           : onClickEditApplication();
       }}
       className={`flex flex-row items-center justify-between py-2 px-4 w-full rounded-lg ${
-        applicationColor(props.application.status).style
+        getApplicationStyle(props.application.status).style
       }`}
     >
       <Text className="text-xl text-black uppercase font-impact">
         {props.application.performerProfile.stageName}
       </Text>
       <View className="flex flex-row items-center justify-center gap-3 px-4 py-2">
-        {applicationColor(props.application.status).icon}
+        {getApplicationStyle(props.application.status).icon}
         <Text className="font-sfBold">{props.application.status}</Text>
       </View>
     </TouchableOpacity>
@@ -205,7 +168,7 @@ export const ApplicationEventCard = (props: Props) => {
   return (
     <TouchableOpacity
       className={`flex flex-row gap-10 items-center justify-between mb-5 rounded-lg ${
-        applicationColor(props.application.status).style
+        getApplicationStyle(props.application.status).style
       }`}
       onPress={() => {
         props.onPress

@@ -5,6 +5,7 @@ import Octicons from '@expo/vector-icons/Octicons';
 import { Images } from '@/constants/images';
 import { useCurrentUser } from '@/lib/state/user-queries';
 import { checkUserRole } from '@/lib/helper';
+import { Feather, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 
 const TabIcon = ({
   focused,
@@ -15,13 +16,17 @@ const TabIcon = ({
   icon: React.ReactNode;
   title: string;
 }) => (
-  <View className={`flex flex-col items-center justify-center flex-1`}>
+  <View
+    className={`flex flex-col items-center justify-center flex-1 relative `}
+  >
     <View
       className={`${
-        focused ? 'bg-primary-300 h-4 w-20 mb-2 rounded-full' : 'border-none'
+        focused
+          ? 'bg-primary-100 h-2 w-20 absolute top-[-5px] rounded-b-md'
+          : 'border-none'
       }`}
     ></View>
-    {icon}
+    <View className="mt-2">{icon}</View>
   </View>
 );
 
@@ -47,12 +52,12 @@ const Layout = () => {
 
   return (
     <>
-      <SafeAreaView className="">
+      <SafeAreaView className="border-b-8 border-primary-100">
         <View className="flex items-start justify-end p-4 h-36">
           <Image
             source={Images.LoveDelhiLong}
             resizeMode="contain"
-            className="w-48 h-14"
+            className="w-56 h-14"
           />
           <Text className="w-full text-3xl text-white uppercase font-impact">
             {getPageTitle()}
@@ -68,7 +73,7 @@ const Layout = () => {
           tabBarStyle: {
             backgroundColor: 'white',
             position: 'absolute',
-            borderTopColor: '#0061FF1A',
+            borderTopColor: 'lightgray',
             borderTopWidth: 1,
             minHeight: 90,
           },
@@ -85,8 +90,8 @@ const Layout = () => {
                 icon={
                   <Octicons
                     name="home"
-                    size={24}
-                    color={focused ? '#D91111' : '#EA7B7B'}
+                    size={20}
+                    color={focused ? '#E51515' : '#EA7B7B'}
                   />
                 }
                 title="Events"
@@ -94,11 +99,68 @@ const Layout = () => {
             ),
           }}
         />
-        <Tabs.Screen name="schedule" />
+        <Tabs.Screen
+          name="schedule"
+          options={{
+            tabBarLabel: 'Events',
 
-        <Tabs.Screen name="performers" />
+            tabBarIcon: ({ focused }) => (
+              <TabIcon
+                focused={focused}
+                icon={
+                  <Octicons
+                    name="check-circle"
+                    size={20}
+                    color={focused ? '#E51515' : '#EA7B7B'}
+                  />
+                }
+                title="Schedule"
+              />
+            ),
+          }}
+        />
 
-        <Tabs.Screen name="account" />
+        <Tabs.Screen
+          name="performers"
+          options={{
+            tabBarLabel: 'Events',
+
+            tabBarIcon: ({ focused }) => (
+              <TabIcon
+                focused={focused}
+                icon={
+                  <MaterialIcons
+                    name="groups"
+                    size={20}
+                    color={focused ? '#E51515' : '#EA7B7B'}
+                  />
+                }
+                title="Performers"
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="account"
+          options={{
+            tabBarLabel: 'Events',
+
+            tabBarIcon: ({ focused }) => (
+              <TabIcon
+                focused={focused}
+                icon={
+                  <Octicons
+                    name="person"
+                    size={20}
+                    color={focused ? '#E51515' : '#EA7B7B'}
+                  />
+                }
+                title="Account"
+              />
+            ),
+          }}
+        />
       </Tabs>
     </>
   );
